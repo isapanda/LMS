@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf8">
+	<title>ccchart</title>	
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.min.js" charset="utf-8"></script>
+	<script src="/home/pi/chart.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<title>Chart.js sample</title>
+</head>
+<body>
+
+<div class="pure-u-1">
+	
+	<div>
+		<canvas id="chart" height="450" width="600"></canvas>
+	</div>
+	
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+	function MainViewModel(data) {
+
+	function TmpChart(){
+		var ti2cdata= [];
+		var tlabels= [0,1,2,3,4,5];
+		var labelnum =tlabels.length;
+		var ctx = document.getElementById('chart').getContext('2d');
+		var myChart = new Chart(ctx, {
+	  	type: 'line',
+	 	 data: {
+	   	 labels: tlabels,
+	  	  datasets: [
+			{label: 'apples', data: ti2cdata, backgroundColor: "rgba(153,255,51,0.4)" }, 
+			//{ label: 'oranges', data: [55, 29, 5, 5, 2, 3, 10], backgroundColor: "rgba(255,153,0,0.4)"}
+		   ]}});
+		this.update = function(val){
+			
+			ti2cdata.push(val);
+			if(ti2cdata.length>labelnum){
+				ti2cdata.shift();
+			}
+			//tlabels.push(labelnum++);
+			myChart.update();
+		}
+
+ 	}
+	var tc = new TmpChart();
+
+	var socket = io.connect();
+	socket.on('chart', function (data, fn) {
+        if(data.str){
+       var datas = data.str.split(",");
+	        	}
+	
+	tc.update(datas[2]);	
+	});
+	
+}
+	
+	var vm = MainViewModel();
+	//ko.applyBindings(vm);
+	
+</script>
+	
+</body>
+</html>

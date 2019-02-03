@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<html>
+  <head>
+    <meta charset="utf-8"> 
+    <title>Lavender tool</title>
+    <script src="http://ccchart.com/js/ccchart.js" charset="utf-8"></script>
+    <script src="home/pi/ccchart.js" charset="utf-8"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+       var socket = io.connect();
+       socket.on('chart', function(data, fn) {
+        console.log(data); 
+        document.getElementById("str").innerHTML = data.str;
+//https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js
+        // set-data
+        if(data.str){
+          var datas = data.str.split(",");
+          chartdata.data[0].push(datas[1]);
+          chartdata.data[1].push(datas[2]);
+          chartdata.data[2].push(datas[3]);
+          chartdata.data[3].push(datas[4]);
+        }
+        // max-length
+        var title = [
+          chartdata.data[0][0],chartdata.data[1][0],chartdata.data[2][0],chartdata.data[3][0]
+        ];
+        var maxLength = 30;
+        if(chartdata.data[0].length>maxLength){
+          chartdata.data[0] = chartdata.data[0].splice(chartdata.data[0].length - maxLength -1);
+          chartdata.data[1] = chartdata.data[1].splice(chartdata.data[1].length - maxLength -1);
+          chartdata.data[2] = chartdata.data[2].splice(chartdata.data[2].length - maxLength -1);
+          chartdata.data[3] = chartdata.data[3].splice(chartdata.data[3].length - maxLength -1);
+          chartdata.data[0].unshift(title[0]);
+          chartdata.data[1].unshift(title[1]);
+          chartdata.data[2].unshift(title[2]);
+          chartdata.data[3].unshift(title[3]);
+        }
+        ccchart.wsCloseAll();//一旦クリア
+        ccchart.init('hoge', chartdata);
+      });
+    </script>
+  </head>
+  <body>
+
+    <canvas id="hoge"></canvas>
+
+    <div id="str"></div>
+
+<script>
+var chartdata = {
+
+  "config": {
+    "title": "WebSocket Line Chart",
+    "subTitle": "ラベンダー周辺環境",
+    "type": "line",
+    "bg":"white",
+    "textColor":"#444",
+    "width":"900",
+    "hight":"600",
+    "useShadow":"no",
+    "lineWidth": 3,
+    "maxY": 100,
+    "minY": 0,
+    "useVal": "no",
+    "useMarker": "arc",
+    "xScaleSkip": 10,
+    "maxWsColLen": 2,
+    "useMarker": "css-ring",
+    "markerWidth": 6,
+    "colorSet":
+          ["#DDA0DD","#00A7B0","#A0DDDD"],
+    "xLines": [
+          {"useRow":1,"color":"rgba(250,250,250,0.7)"
+          }
+        ]
+  },
+
+  "data": [
+    ["Time"],
+    ["data-1"],
+    ["data-2"],
+    ["data-3"]
+  ]
+};
+
+// set empty-data
+var maxLength = 100;
+for(var i=0;i<maxLength;i++){
+  chartdata.data[0].push("");
+  chartdata.data[1].push(0);
+  chartdata.data[2].push(0);
+  chartdata.data[3].push(0);
+}
+
+  ccchart.wsCloseAll();//一旦クリア
+  ccchart.init('hoge', chartdata);
+</script>
+
+  </body>
+ </html>
+

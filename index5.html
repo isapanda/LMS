@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf8">
+	<title>ccchart</title>	
+	<script type="text/javascript" src="/home/LMS/chart.min.js" charset="utf-8"></script>
+	<script src="/socket.io/socket.io.js"></script>
+
+	<title>Chart.js sample</title>
+</head>
+<body>
+
+<div class="pure-u-1">
+	
+	<div>
+		<canvas id="chart" height="360" width="640"></canvas>
+	</div>
+	
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+
+function csv2Array(str){
+			var csvData = [];
+			var lines = str.split("\n");
+			for(var i = 0; i < lines.length; ++i){
+			csvData[i] = lines[i].split(",");
+			}
+			return (csvData);
+		}
+
+	function MainViewModel() {
+
+	function TmpChart(csvdata){
+		
+		
+		var tmpLabels = [], tmpData1 = [], tmpData2 = [], tmpData3 = [];
+		var tlabels = [], ti2cdata = [], ti2cdata2 = [];
+		
+		for (var row in csvdata) {
+			tmpLabels.push(csvdata[row][0])
+			tmpData1.push(csvdata[row][1])
+			tmpData2.push(csvdata[row][2])
+			tmpData3.push(csvdata[row][3])
+			}
+
+		var l = tmpLabels.length;
+	
+		if ( l > 11 )
+			l=11;
+
+		for (var i =0; i < l-1 ; i++) {
+			tmpLabels.push(tmpLabels[tmpLabels.length-l+i])
+			tlabels.push(tmpData1[tmpData1.length-l+i])
+			ti2cdata.push(tmpData2[tmpData2.length-l+i])
+			ti2cdata2.push(tmpData3[tmpData3.length-l+i])
+			}
+
+		//var ti2cdata= [csvdata[l-11][2], csvdata[l-10][2],csvdata[l-9][2],csvdata[l-8][2],csvdata[l-7][2],csvdata[l-6][2],csvdata[l-5][2],csvdata[l-4][2],csvdata[l-3][2],csvdata[l-2][2]];
+		//var ti2cdata2= [csvdata[l-11][3], csvdata[l-10][3],csvdata[l-9][3],csvdata[l-8][3],csvdata[l-7][3],csvdata[l-6][3],csvdata[l-5][3],csvdata[l-4][3],csvdata[l-3][3],csvdata[l-2][3]];
+		//var tlabels= [csvdata[l-11][1], csvdata[l-10][1],csvdata[l-9][1],csvdata[l-8][1],csvdata[l-7][1],csvdata[l-6][1], csvdata[l-5][1],csvdata[l-4][1],csvdata[l-3][1],csvdata[l-2][1]];
+		var labelnum =tlabels.length;
+		var ctx = document.getElementById('chart').getContext('2d');
+		var myChart = new Chart(ctx, {
+	  	type: 'line',
+		options:{
+			animation:false,
+			responsive:false,
+			scales:{
+				
+				yAxes:[{ticks:{beginAtZero:true, min:0, max:100}}]}},
+	 	 data: {
+	   	 labels: tlabels,
+	  	  datasets: [
+			{label: 'Temperture', data: ti2cdata, backgroundColor: "rgba(250,160,0,0.6)", tension: 0, min:0}, 
+			{label: 'Moisture', data: ti2cdata2, backgroundColor: "rgba(54,164,235,0.2)", tension: 0}
+		   ]}});
+
+		
+		
+
+		this.update = function(val, val2, val3){
+			
+			ti2cdata.push(val);
+			if(ti2cdata.length>labelnum){
+				ti2cdata.shift();
+			}
+			//tlabels.push(labelnum++);
+
+
+			ti2cdata2.push(val2);
+			if(ti2cdata2.length>labelnum){
+				ti2cdata2.shift();
+			}
+			//tlabels.push(labelnum++);
+
+			tlabels.push(val3);
+			if(tlabels.length>labelnum){
+				tlabels.shift();
+			}
+			//tlabels.push(labelnum++);
+			
+			myChart.update();
+		}
+
+ 	}
+
+		
+		var req = new XMLHttpRequest();
+
+		req.open("get","/home/LMS/log.csv",true);
+		req.send(null);
+		req.onload = function(){
+		logdata = csv2Array(req.responseText);
+		var dey = logdata.length;			
+
+
+		var filePath = logdata[dey-2];
+		var Path = "/home/LMS/"
+		//filePath = filePath
+
+		req.open("get",Path+filePath,true);
+		req.send(null);
+		req.onload = function(){
+		csvdata = csv2Array(req.responseText);	
+
+
+		var tc = new TmpChart(csvdata);
+
+		var socket = io.connect();
+		socket.on('chart', function (data, fn) {
+        	if(data.str){
+       	var datas = data.str.split(",");
+	        	}
+	
+		tc.update(datas[2],datas[3],datas[1]);	
+	});}}
+
+	
+	
+}
+	
+	var vm = MainViewModel();
+	//ko.applyBindings(vm);
+	
+</script>
+	
+</body>
+</html>

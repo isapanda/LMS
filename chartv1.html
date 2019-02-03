@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf8">
+	<title>ccchart</title>	
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js" charset="utf-8"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="http://knockoutjs.com/downloads/knockout-3.4.2.js"></script>
+
+	<title>Chart.js sample</title>
+</head>
+<body>
+
+<div class="pure-u-1">
+	
+	<div>
+		<canvas id="canvas" height="450" width="600"></canvas>
+	</div>
+	
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+	function MainViewModel(data) {
+		var self = this;
+		var socket = io.connect();
+		
+		self.lineChartData = ko.observable({
+			labels : ["January","February","March","April","May","June","July"],
+			datasets : [
+				{
+					fillColor : "rgba(151,187,205,0.5)",
+					strokeColor : "rgba(151,187,205,1)",
+					pointColor : "rgba(151,187,205,1)",
+					pointStrokeColor : "#fff",
+					data : [65,59,90,81,56,55,40]
+				},{
+      label: 'oranges',
+      data: [33, 29, 38, 43, 26, 16, 10],
+      backgroundColor: "rgba(255,153,0,0.4)"}
+			]
+		});
+		
+		socket.on('chart', function (data, fn) {
+			
+        if(data.str){
+         	 var datas = data.str.split(",");
+
+        }
+			
+			self.lineChartData().datasets[0].data.shift();
+			self.lineChartData().datasets[1].data.shift();
+			self.lineChartData().datasets[0].data.push(datas[2]);
+			self.lineChartData().datasets[1].data.push(datas[3]);
+			
+			self.initLine();
+		});
+		
+		self.initLine = function() {
+			var options = {
+				animation : false,
+				scaleOverride : true,
+				scaleSteps : 10,//Number - The number of steps in a hard coded scale
+				scaleStepWidth : 10,//Number - The value jump in the hard coded scale				
+				scaleStartValue :0//Number - The scale starting value
+			};
+			
+			var ctx = $("#canvas").get(0).getContext("2d");
+			var myLine = new Chart(ctx).Line( vm.lineChartData(), options );
+		}
+		
+	}
+	
+	var vm = new MainViewModel();
+	ko.applyBindings(vm);
+	vm.initLine();
+	
+</script>
+	
+</body>
+</html>

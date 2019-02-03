@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf8">
+	<title>ccchart</title>	
+	//<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="chart.min.js" charset="utf-8"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="http://knockoutjs.com/downloads/knockout-3.4.2.js"></script>
+	<title>Chart.js sample</title>
+</head>
+<body>
+
+<div class="pure-u-1">
+	
+	<div>
+		<canvas id="chart" height="360" width="640"></canvas>
+	</div>
+	
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+
+	function MainViewModel() {
+
+	function TmpChart(){
+		var ti2cdata= [];
+		var ti2cdata2= [];
+		var tlabels= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+		var labelnum =tlabels.length;
+		var ctx = document.getElementById('chart').getContext('2d');
+		var myChart = new Chart(ctx, {
+	  	type: 'line',
+		options:{
+			animation:false,
+			responsive:false,
+			scales:{
+				
+				yAxes:[{ticks:{beginAtZero:true, min:0, max:100}}]}},
+	 	 data: {
+	   	 labels: tlabels,
+	  	  datasets: [
+			{label: 'Temperture', data: ti2cdata, backgroundColor: "rgba(250,160,0,0.6)", tension: 0, min:0}, 
+			{label: 'Moisture', data: ti2cdata2, backgroundColor: "rgba(54,164,235,0.2)", tension: 0}
+		   ]}});
+		this.update = function(val, val2, val3){
+			
+			ti2cdata.push(val);
+			if(ti2cdata.length>labelnum){
+				ti2cdata.shift();
+			}
+			//tlabels.push(labelnum++);
+
+
+			ti2cdata2.push(val2);
+			if(ti2cdata2.length>labelnum){
+				ti2cdata2.shift();
+			}
+			//tlabels.push(labelnum++);
+
+			tlabels.push(val3);
+			if(tlabels.length>labelnum){
+				tlabels.shift();
+			}
+			//tlabels.push(labelnum++);
+			
+			myChart.update();
+		}
+
+ 	}
+	var tc = new TmpChart();
+
+	var socket = io.connect();
+	socket.on('chart', function (data, fn) {
+        if(data.str){
+       var datas = data.str.split(",");
+	        	}
+	
+	tc.update(datas[2],datas[3],datas[1]);	
+	});
+	
+}
+	
+	var vm = MainViewModel();
+	//ko.applyBindings(vm);
+	
+</script>
+	
+</body>
+</html>
