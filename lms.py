@@ -3,6 +3,7 @@
 
 import smbus
 import time
+from time import sleep
 import sys
 import datetime
 import csv
@@ -19,10 +20,13 @@ temp = (block[0] << 8 | block[1]) >> 3
 if(temp >= 4096):
  temp -= 819
 temp = temp * 0.0625
+temp = round(temp,1)
 
 address = 0x50
-block = i2c.read_i2c_block_data(address, 0x00, 2)
-adc = block[0]
+i2c.write_byte(address, 0x02)
+sleep(2)
+block = i2c.read_byte(address)
+adc = block * 100 / 255
 
 address = 0x51
 block = i2c.read_i2c_block_data(address, 0x02, 7)
@@ -59,9 +63,9 @@ if __name__ == '__main__':
 
 		#rtc = str(year) + "," + str(month) + "," + str(weekdey) + "," + str(dey) + "," + str(hour) + "," + str(min) + "," + str(sec) + ",\n"
 		#print rtc
-		
+
 		fname = rtcdey + '_lmsdata.csv'	
-		
+
 		f = open("/home/LMS/log.csv","r")
 		reader = csv.reader(f)
 		rData = []
@@ -89,7 +93,7 @@ if __name__ == '__main__':
 		listData.append(rtctime)
 		listData.append(temp)
 		listData.append(adc)
-		
+
 		csvWriter.writerow(listData)
 		f.close()
 

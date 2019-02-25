@@ -2,13 +2,91 @@
 <html lang="ja">
 <head>
 	<meta charset="utf8">
-	<title>ccchart</title>	
+	<title>LMSnow!</title>	
 	<script type="text/javascript" src="/home/LMS/chart.min.js" charset="utf-8"></script>
 	<script src="/socket.io/socket.io.js"></script>
 
 	<title>Chart.js sample</title>
+
+	<style type="text/css">
+		 body {
+  		  color: gray;
+		  font-size:100%; 
+	 	}
+		
+		.sensor{ width:700px; height:100px; overflow: hidden;}
+                .temp-image{ margin-left:100px; float:left;}
+		.temp{ font-weight: bold; font-size:40px; float:left; width:180px;}
+                .moist-image{margin-top:35px; float:left;}
+		.moist{font-weight:bold; font-size:40px; float:left; width:150px;}
+		.reload{margin-left: 70px; float:left;}
+		.pour{margin-left:70px;}
+		.setting{margin-left:70px;}
+	</style>
 </head>
 <body>
+
+<div class="sensor">
+
+<p class="temp-image"><img src="/pict/temp.png"></p>
+<p class="temp" id="temp">unknown</p>
+<p class="moist-image"><img src="/pict/mist.png"></p>
+<p class="moist"id="moist">unknown</p>
+</div>
+<script language="JavaScript">
+
+        var socketio = io();
+
+	function csv2Array(str){	
+	var csvData = [];
+        var lines = str.split("\n");
+        for(var i = 0; i < lines.length; ++i){
+           csvData[i] = lines[i].split(",");
+        }
+        return (csvData);
+	}
+	        var req = new XMLHttpRequest();
+
+                req.open("get","/home/LMS/log.csv",true);
+                req.send(null);
+                req.onload = function(){
+                logdata = csv2Array(req.responseText);
+                var dey = logdata.length;
+
+                var filePath = logdata[dey-2];
+                var Path = "/home/LMS/";
+                //filePath = filePath
+
+                req.open("get",Path+filePath,true);
+                req.send(null);
+                req.onload = function(){
+                csvdata = csv2Array(req.responseText);
+
+                var newdata = csvdata.length;
+		
+		
+	        socketio.on('chart', function (data, fn) {
+                	if(data.str){
+		        	var datas = data.str.split(",");
+                 	}
+			document.getElementById("temp").innerHTML = datas[2]+"℃";
+			document.getElementById("moist").innerHTML = datas[3]+"%";
+		});
+
+		var n=0;
+		var k=0;
+		for (var i =0; i < newdata-1 ; i++) {
+			n=csvdata[i][2];
+			k=csvdata[i][3];
+		console.log(n);
+		}
+		document.getElementById("temp").innerHTML =n +"℃";
+		document.getElementById("moist").innerHTML =k +"%";
+
+}}
+
+
+</script>
 
 <div class="pure-u-1">
 	
@@ -46,7 +124,7 @@ function csv2Array(str){
 			}
 
 		var l = tmpLabels.length;
-	
+		console.log(tmpLabels.length);
 		if ( l > 11 )
 			l=11;
 
@@ -106,9 +184,10 @@ function csv2Array(str){
 
  	}
 
-		
+		// When Open LMS page.
 		var req = new XMLHttpRequest();
 
+		// Read csv from the directory.
 		req.open("get","/home/LMS/log.csv",true);
 		req.send(null);
 		req.onload = function(){
@@ -131,8 +210,8 @@ function csv2Array(str){
 		var socket = io.connect();
 		socket.on('chart', function (data, fn) {
         	if(data.str){
-       	var datas = data.str.split(",");
-	        	}
+		       	var datas = data.str.split(",");
+	      	}
 	
 		tc.update(datas[2],datas[3],datas[1]);	
 	});}}
@@ -144,7 +223,30 @@ function csv2Array(str){
 	var vm = MainViewModel();
 	//ko.applyBindings(vm);
 	
+
 </script>
 	
 </body>
+
+
+<script language="javascript" type="text/javascript">
+	
+	var socketio = io();
+	
+	function getdata(){
+	socketio.emit('getdata');
+	console.log('push');}
+
+	function drivemortor(){
+	socketio.emit('drivemortor');
+	console.log('Vooonnn....');};
+
+</script>
+
+<div class="function">
+<input type="image" class="reload" src="/pict/Reload.png"  onclick="getdata();">
+<input type="image" class="pour" src="/home/LMS/pict/Pour.png" onclick="drivemortor();">
+<input type="image"class="setting" src="/home/LMS/pict/setting.png">
+</div>
+
 </html>
