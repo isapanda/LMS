@@ -32,10 +32,10 @@ cd ./.nvm/versions/node/v8.11.1/lib/node_modules
 npm install -g socket.io@1.7.3
 
 #install localtunnel
-sudo npm install -g localtunnel@1.9.1
+sudo npm install localtunnel@1.9.1
 
 #install forever & initd-forever
-npm install -g forever initd-forever@1.0.0
+npm install forever initd-forever@1.0.0
 #cd /home/LMS
 sudo initd-forever -a /home/LMS/index.js -n nodestart
 sudo chmod +x nodestart
@@ -54,4 +54,4 @@ source ~/.bashrc
 #install LMS file
 sudo git clone git://github.com/isapanda/LMS.git /home/LMS
 sudo mkdir /home/LMS/pict
-sudo mv mist.png Pour.png setting.png Reload.png temp.png /home/LMS/pict
+sudo mv mist.png Pour.png setting.png Reload.png temp.png home.png submit.png shutdown.png /home/LMS/pict
