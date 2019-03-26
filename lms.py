@@ -23,8 +23,9 @@ temp = temp * 0.0625
 temp = round(temp,1)
 
 address = 0x50
-i2c.write_byte(address, 0x02)
-sleep(2)
+i2c.write_i2c_block_data(address,0x00,[0x00,0x02,0x00])
+#i2c.write_byte(address, 0x02)
+sleep(1)
 block = i2c.read_byte(address)
 adc = block * 100 / 255
 
@@ -58,11 +59,6 @@ if __name__ == '__main__':
 		rtctime = str(hour) + str(min) + str(sec)
 
 		disp = str(rtcdey) + "," + str(hour) + str(min) + str(sec) + "," + str(temp) + "," + str (adc) + ",\n"
-		#disp = str(dt) + "," + str(tm) + "," + str(temp)  + ","+ str(adc) + ",\n"
-		#csv = str(dt) + "," + str(tm) + "," + str(temp) + ","
-
-		#rtc = str(year) + "," + str(month) + "," + str(weekdey) + "," + str(dey) + "," + str(hour) + "," + str(min) + "," + str(sec) + ",\n"
-		#print rtc
 
 		fname = rtcdey + '_lmsdata.csv'	
 

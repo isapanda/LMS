@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf8">
+	<title>Setting your LMS</title>	
+	<script type="text/javascript" src="/home/LMS/chart.min.js" charset="utf-8"></script>
+	<script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="jquery-1.12.4.min.js"></script>
+	<title>Chart.js sample</title>
+
+	<style type="text/css">
+		 body {
+  		  color: gray;
+		  font-size:100%; 
+	 	}
+
+		th { font-size: 16px;}
+		td {font-weight: bold; font-size:14px;}
+		
+		.sensor{ width:700px; height:100px; overflow: hidden; margin-left:auto; margin-right:auto;}
+                .temp-image{ margin-left:100px; float:left;}
+		.temp{ font-weight: bold; font-size:40px; float:left; width:180px;}
+                .moist-image{margin-left:70px; margin-top:35px; float:left;}
+		.moist{font-weight:bold; font-size:40px; float:left; width:150px;}
+		.setting{ text-align:center;}
+		.shutdown{}
+		.submit{margin-left:160px;}
+		.home{margin-left:160px;}
+		.buttons{margin-left:auto; margin-right:auto;}
+
+		.settingContent {
+    			padding: 1.5em 3em;
+			margin:0.2em 0;
+			width:730px; /*枠の横幅*/
+			font-weight: bold;
+			color: #666666;/*文字色*/
+			background: #FFF;
+			border: solid 3px #b3b3b3;/*線*/
+			border-radius: 10px;/*角の丸み*/
+			margin-left:auto;
+			margin-right:auto;
+		}
+		.settingContent p {
+			margin: 0; 
+		 	padding:0;
+		}
+
+
+		.settingTable{
+			table-layout: fixed;
+		}
+		table th { padding-top:5px; padding-bottom:5px;}
+		table td { padding-top:5px; padding-bottom:5px;}
+		
+
+		/* === ボタンを表示するエリア ============================== */
+		.switchArea{
+		  line-height    : 40px;                /* 1行の高さ          */
+		  letter-spacing : 0;                   /* 文字間             */
+		  text-align     : center;              /* 文字位置は中央     */
+		  font-size      : 24px;                /* 文字サイズ         */
+		  font-weight	 : bold;
+		  position       : relative;            /* 親要素が基点       */
+		  margin         : auto;                /* 中央寄せ           */
+		  width          : 120px;               /* ボタンの横幅       */
+		  background     : #fff;                /* デフォルト背景色   */
+		}
+
+ /* === チェックボックス ==================================== */
+.switchArea input[type="checkbox"] {
+  display        : none;            /* チェックボックス非表示 */
+}
+
+ /* === チェックボックスのラベル（標準） ==================== */
+.switchArea label {
+  display        : block;               /* ボックス要素に変更 */
+  box-sizing     : border-box;          /* 枠線を含んだサイズ */
+  height         : 40px;                /* ボタンの高さ       */
+  border         : 2px solid #999999;   /* 未選択タブのの枠線 */
+  border-radius  : 30px;                /* 角丸               */
+}
+
+ /* === チェックボックスのラベル（ONのとき） ================ */
+.switchArea input[type="checkbox"]:checked +label {
+  border-color   : #78bd78;             /* 選択タブの枠線     */
+}
+
+ /* === 表示する文字（標準） ================================ */
+.switchArea label span:after{
+  content        : "OFF";               /* 表示する文字       */
+  padding        : 0 0 0 36px;          /* 表示する位置       */
+  color          : #999999;             /* 文字色             */
+}
+
+ /* === 表示する文字（ONのとき） ============================ */
+.switchArea  input[type="checkbox"]:checked + label span:after{
+  content        : "ON";                /* 表示する文字       */
+  padding        : 0 36px 0 0;          /* 表示する位置       */
+  color          : #78bd78;             /* 文字色             */
+}
+
+ /* === 丸部分のSTYLE（標準） =============================== */
+.switchArea #swImg {
+  position       : absolute;            /* 親要素からの相対位置*/
+  width          : 32px;                /* 丸の横幅           */
+  height         : 32px;                /* 丸の高さ           */
+  background     : #999999;             /* カーソルタブの背景 */
+  top            : 4px;                 /* 親要素からの位置   */
+  left           : 4px;                 /* 親要素からの位置   */
+  border-radius  : 26px;                /* 角丸               */
+  transition     : .34s;                 /* 滑らか変化         */
+}
+
+ /* === 丸部分のSTYLE（ONのとき） =========================== */
+.switchArea input[type="checkbox"]:checked ~ #swImg {
+  transform      : translateX(80px);    /* 丸も右へ移動       */
+  background     : #78bd78;             /* カーソルタブの背景 */
+}
+
+	</style>
+</head>
+
+<body>
+<div class="sensor">
+<p class="temp-image"><img src="/pict/temp.png"></p>
+<p class="temp" id="temp">NowLoading...</p>
+<p class="moist-image"><img src="/pict/mist.png"></p>
+<p class="moist"id="moist">NowLoading...</p>
+</div>
+
+<div class="setting">
+<h2>LMSの設定</h2>
+</div>
+
+<div class="settingContent">
+<table class="settingTable">
+<tbody>
+<tr name="AutoPomp">
+<th width="150" align="left">自動水やり機能</th>
+<td width="430">：OFFだと自動で水やりしないよ</td>
+<td>
+
+<div class="switchArea">
+  <input type="checkbox" name="onoff" id="switch1" value="ON">
+  <label for="switch1"><span></span></label>
+  <div id="swImg"></div>
+</div>
+</td>
+</tr>
+
+<tr name="threshold">
+<th width="10" align="left">自動水やりの閾値</th>
+<td width="430">：この値を水分量が下回ると水をあげるよ</td>
+<td width="50"align="right">
+<select name="threshold_val" id="threshold_val">
+        <option value="94"> 94%</option>
+        <option value="93"> 93%</option>
+        <option value="92"> 92%</option>
+        <option value="91"> 91%</option>
+        <option value="90"> 90%</option>
+        <option value="89"> 89%</option>
+        <option value="88"> 88%</option>
+        <option value="87"> 87%</option>
+        <option value="86"> 86%</option>
+        <option value="85"> 85%</option>
+        <option value="84"> 84%</option>
+        <option value="83"> 83%</option>
+        <option value="82"> 82%</option>
+        <option value="81"> 81%</option>
+        <option value="80"> 80%</option>
+        <option value="79"> 79%</option>
+        <option value="78"> 78%</option>
+        <option value="77"> 77%</option>
+        <option value="76"> 76%</option>
+        <option value="75"> 75%</option>
+        <option value="74"> 74%</option>
+        <option value="73"> 73%</option>
+        <option value="72"> 72%</option>
+        <option value="71"> 71%</option>
+        <option value="70"> 70%</option>
+        <option value="69"> 69%</option>
+        <option value="68"> 68%</option>
+        <option value="67"> 67%</option>
+        <option value="66"> 66%</option>
+        <option value="65"> 65%</option>
+        <option value="64"> 64%</option>
+        <option value="63"> 63%</option>
+        <option value="62"> 62%</option>
+        <option value="61"> 61%</option>
+        <option value="60"> 60%</option>
+        <option value="50"> 50%</option>
+        <option value="40"> 40%</option>
+        <option value="30"> 30%</option>
+        <option value="20"> 20%</option>
+        <option value="10"> 10%</option>
+</select>
+</td>
+</tr>
+
+<tr name="interval">
+<th width="10" align="left">グラフの更新間隔</th>
+<td width="430" align="left">：更新間隔を1secにするとモーターで給水できなくなるよ</td>
+
+<td width="50" align="right"> 
+<select name="interval_val" id="interval_val">
+	<option value="3600000">1hour</option>
+	<option value="1800000">30min</option>
+	<option value="900000">15min</option>
+	<option value="600000">10min</option>
+	<option value="300000"> 5min</option>
+	<option value="60000"> 1min</option>
+	<option value="30000"> 30sec</option>
+	<option value="10000"> 10sec</option>
+	<option value="1000"> 1sec</option>
+</select>
+</td>
+</tr>
+
+<tr name="drive">
+<th width="15" align="left">モーター駆動時間 </th>
+<td width="430">：長くしすぎないように注意してね</td>
+<td width="50" align="right">
+<select name="drive_val" id="drive_val">
+        <option value="8">4sec</option>
+        <option value="7">3.5sec</option>
+        <option value="6">3 sec</option>
+        <option value="5">2.5sec</option>
+        <option value="4"> 2sec</option>
+        <option value="3"> 1.5sec</option>
+        <option value="2"> 1sec</option>
+	<option value="1"> 500msec</optin>
+</select>
+</td>
+</tr>
+
+</tbody>
+</table>
+
+</div>
+
+<script language="JavaScript">
+
+        var socketio = io();
+
+	function csv2Array(str){	
+	var csvData = [];
+        var lines = str.split("\n");
+        for(var i = 0; i < lines.length; ++i){
+           csvData[i] = lines[i].split(",");
+        }
+        return (csvData);
+	}
+	        var req = new XMLHttpRequest();
+
+                req.open("get","/home/LMS/log.csv",true);
+                req.send(null);
+                req.onload = function(){
+                logdata = csv2Array(req.responseText);
+                var dey = logdata.length;
+
+                var filePath = logdata[dey-2];
+                var Path = "/home/LMS/";
+                //filePath = filePath
+
+                req.open("get",Path+filePath,true);
+                req.send(null);
+                req.onload = function(){
+                csvdata = csv2Array(req.responseText);
+
+                var newdata = csvdata.length;
+		
+		
+	        socketio.on('chart', function (data, fn) {
+                	if(data.str){
+		        	var datas = data.str.split(",");
+                 	}
+			document.getElementById("temp").innerHTML = datas[2]+"℃";
+			document.getElementById("moist").innerHTML = datas[3]+"%";
+		});
+
+		var n=0;
+		var k=0;
+		for (var i =0; i < newdata-1 ; i++) {
+			n=csvdata[i][2];
+			k=csvdata[i][3];
+		console.log(n);
+		}
+		document.getElementById("temp").innerHTML =n +"℃";
+		document.getElementById("moist").innerHTML =k +"%";
+
+}}
+
+
+function getCSV(){
+    var req = new XMLHttpRequest(); // HTTPでファイルを読み込むためのXMLHttpRrequestオブジェクトを生成
+    req.open("get", "/home/LMS/setting.csv", false); // アクセスするファイルを指定 (falseにするのがミソ)
+    req.send(null); // HTTPリクエストの発行
+    // レスポンスが返ってきたらconvertCSVtoArray()を呼ぶ	
+    //req.onload = function(){ //reqが成功したらfunction実行の意
+    //convertCSVtoArray(req.responseText); // 渡されるのは読み込んだCSVデータ
+    //}
+    //return datas[0][0];
+//}
+    var tmp = req.responseText.split('\n');
+//function convertCSVtoArray(str){ // 読み込んだCSVデータが文字列として渡される
+  
+    var result = []; // 最終的な二次元配列を入れるための配列
+    //var tmp = str.split("\n"); // 改行を区切り文字として行を要素とした配列を生成
+ 
+    // 各行ごとにカンマで区切った文字列を要素とした二次元配列を生成
+    for(var i=0;i < tmp.length;++i){
+        result[i] = tmp[i].split(',');
+    }
+
+    return(result);
+} 
+
+
+var readResult = getCSV();
+
+$("#interval_val").val(readResult[0][0]);
+$("#threshold_val").val(readResult[0][1]);
+$("#drive_val").val(readResult[0][2]);
+
+if (readResult[0][3] == "ON")
+        $("#switch1").prop("checked", true); // ON にする
+else
+        $("#switch1").prop("checked", false); // OFF にする
+
+        function submit(){
+	//var interval = document.tr.interval_val;
+	var selected_val=[];
+	//Get Selected value.
+	var selected_index_num = interval_val.selectedIndex;
+        selected_val[0] = interval_val.options[selected_index_num].value;
+	console.log(selected_val[0]);
+
+        selected_index_num = threshold_val.selectedIndex;
+        selected_val[1] = threshold_val.options[selected_index_num].value;
+        console.log(selected_val[1]);
+
+        selected_index_num = drive_val.selectedIndex;
+        selected_val[2] = drive_val.options[selected_index_num].value;
+	console.log(selected_val[2]);
+
+	var switchValue = $("[name=onoff]:checked").val();
+
+	if ( switchValue == "ON")
+		selected_val[3]="ON";
+	else
+		selected_val[3]="OFF";
+
+	console.log($("[name=onoff]:checked").val());
+
+	socketio.emit('submit',selected_val);
+	alert("設定を送信しました");
+        };
+
+        function shutdowns(){
+	        comment = confirm("LMSを終了しますか？");
+        if(comment == true){
+                socketio.emit('shutdown');
+        }else{
+                alert("それがいいのだ");
+        }};
+
+</script>
+<center>
+<div class="buttons">
+<input type="image"class="shutdown" src="/home/LMS/pict/shutdown.png" onclick="shutdowns();">
+<input type="image"class="submit" src="/home/LMS/pict/submit.png" onclick="submit();">
+<input type="image"class="home" src="/home/LMS/pict/home.png" onclick="location.href='/'">
+</div>
+</center>
+</body>
+
+
+</html>

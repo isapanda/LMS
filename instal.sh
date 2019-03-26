@@ -25,6 +25,8 @@ sudo apt-get install -y npm
 #sudo npm install npm n -g
 #sudo n stable
 
+npm init
+
 #install socket.io
 cd ./.nvm/versions/node/v8.11.1/lib/node_modules
 npm install -g socket.io@1.7.3

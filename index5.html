@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 	<meta charset="utf8">
+	<meta name="viewport" content="width=780" >
 	<title>LMSnow!</title>	
 	<script type="text/javascript" src="/home/LMS/chart.min.js" charset="utf-8"></script>
 	<script src="/socket.io/socket.io.js"></script>
@@ -17,21 +18,44 @@
 		.sensor{ width:700px; height:100px; overflow: hidden;}
                 .temp-image{ margin-left:100px; float:left;}
 		.temp{ font-weight: bold; font-size:40px; float:left; width:180px;}
-                .moist-image{margin-top:35px; float:left;}
+                .moist-image{margin-left:70px; margin-top:35px; float:left;}
 		.moist{font-weight:bold; font-size:40px; float:left; width:150px;}
-		.reload{margin-left: 70px; float:left;}
+		.reload{}
 		.pour{margin-left:70px;}
 		.setting{margin-left:70px;}
+                .pure-u-1 {
+                        padding: 0.5em 0.5em;
+                        margin: 0.2em 0;
+                        width:670px; /*枠の横幅*/
+                        font-weight: bold;
+                        color: #6091d3;/*文字色*/
+                        background: #FFF;
+                        border: solid 3px #b3b3b3;/*線*/
+                        border-radius: 30px;/*角の丸み*/
+			margin-left:auto;
+			margin-right:auto;
+                }
+		.function{
+			margin-top:20px;
+			margin-left:auto;
+                        margin-right:auto;
+		}
+		.sensor{
+			margin-left:auto;
+			margin-right:auto;
+		}		
+
+
 	</style>
 </head>
 <body>
 
-<div class="sensor">
 
+<div class="sensor">
 <p class="temp-image"><img src="/pict/temp.png"></p>
-<p class="temp" id="temp">unknown</p>
+<p class="temp" id="temp">NowLoading...</p>
 <p class="moist-image"><img src="/pict/mist.png"></p>
-<p class="moist"id="moist">unknown</p>
+<p class="moist"id="moist">NowLoading...</p>
 </div>
 <script language="JavaScript">
 
@@ -124,7 +148,6 @@ function csv2Array(str){
 			}
 
 		var l = tmpLabels.length;
-		console.log(tmpLabels.length);
 		if ( l > 11 )
 			l=11;
 
@@ -238,15 +261,21 @@ function csv2Array(str){
 	console.log('push');}
 
 	function drivemortor(){
-	socketio.emit('drivemortor');
-	console.log('Vooonnn....');};
+	comment = confirm("水分量を確認してください。本当にモーターを動かしますか？");
+	if(comment == true){
+		socketio.emit('drivemortor');
+		console.log('Vooonnn....');
+	}else{
+		alert("水びだしになるところでしたね");
+	}
+	}
 
 </script>
-
+<center>
 <div class="function">
 <input type="image" class="reload" src="/pict/Reload.png"  onclick="getdata();">
 <input type="image" class="pour" src="/home/LMS/pict/Pour.png" onclick="drivemortor();">
-<input type="image"class="setting" src="/home/LMS/pict/setting.png">
+<input type="image"class="setting" src="/home/LMS/pict/setting.png" onclick="location.href='/home/LMS/setting.html'">
 </div>
-
+</center>
 </html>

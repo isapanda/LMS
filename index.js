@@ -1,14 +1,15 @@
 //Call modules
 var http = require('http');
 var socketio = require("/home/pi/.nvm/versions/node/v4.2.4/lib/node_modules/socket.io")
+var url = require('url');
 //var socketio = require("socket.io");
 var fs = require('fs');
 var exec = require('child_process').exec;
 //const button = document.querySelector('.js-button');
 // set-server
 
-var express = require('/home/pi/.nvm/versions/node/v8.11.1/lib/node_modules/express');
-var app = express();
+//var express = require('/home/pi/.nvm/versions/node/v8.11.1/lib/node_modules/express');
+//var app = express();
 
 //var server = require('http').Server(app);
 
@@ -54,32 +55,67 @@ if(fileName.match(/.js$/)){
 
 
   else{
-    res.writeHead(200,{'Content-Type':'text/html'});
-    res.end(fs.readFileSync('/home/LMS/index5.html',''));
+
+	switch (url.parse(req.url).pathname) {
+        case '/':
+            res.writeHead(200,{'Content-Type':'text/html'});
+            res.end(fs.readFileSync('/home/LMS/index5.html'));
+	    break;
+
+	case '/home/LMS/setting.html'  :
+	    res.writeHead(200,{'Content-Type':'text/html'});
+            res.end(fs.readFileSync('/home/LMS/setting.html'));
+            break;
+	}
+
+    //res.writeHead(200,{'Content-Type':'text/html'});
+    //res.end(fs.readFileSync('/home/LMS/index5.html',''));
   }
 
-  app.get('/',function(req,res){
-	res.send('ttt');
-	console.log("OKOK");})
 //});
 }).listen(9000);
 
 var io = socketio.listen(server);
 
 console.log("LMS_Running...");
+var result=[];
+var interval;
+var threshold;
+var drivetime;
 
+
+function getCSV(){
+	 result=fs.readFileSync('/home/LMS/setting.csv','utf8').split(',');
+console.log(result[0]);
+interval=result[0];
+threshold=result[1];
+drivetime=result[2];
+pompMode=result[3];
+}
+
+var readResult = getCSV();
+//console.log(readResult);
+
+var ggg
+ggg = setInterval(function(){
 //round-check
-setInterval(function(){
+//function repeat(){
+//var repeat = function(){
   exec("sudo python /home/LMS/lms.py",function(error,stdout,stderr){
     io.sockets.emit('chart',{str:"--"+stdout});
-     console.log("stdout:",{str:"--"+stdout});
+     console.log("stdout:",{Data:"--"+stdout});
      console.log("stderr:",+stderr);
-  });
-},600000);
+     var box = stdout.split(',');
+     if (threshold > box[3] && pompMode == "ON")
+     exec("sudo python /home/LMS/mortor.py");
+// console.log(result);
+  }); },interval);
+//ggg = setTimeout(repeat,interval)}
+
+//repeat();
 
 
 io.sockets.on("connection", function(socket){
-    
 	socket.on('getdata', function() {
    	  exec("sudo python /home/LMS/lms.py",function(error,stdout,stderr){
    	  io.sockets.emit('chart', {str:"--"+stdout});
@@ -91,5 +127,32 @@ io.sockets.on("connection", function(socket){
 	  exec("sudo python /home/LMS/mortor.py",function(){
 	  console.log("booooonnn....");
 	  });
-	});
+	})
+
+	socket.on('submit',function(str) {
+	  fs.writeFile('/home/LMS/setting.csv',str,'utf8',function(err){
+		if(err){
+			console.log('Unable save the file');
+		}else{
+			console.log('Success save file');
+			clearInterval(ggg);
+			getCSV(); //ここに
+			ggg = setInterval(function(){
+			  exec("sudo python /home/LMS/lms.py",function(error,stdout,stderr){
+    			  io.sockets.emit('chart',{str:"--"+stdout});
+     			  console.log("stdout:",{Data:"--"+stdout});
+     			  console.log("stderr:",+stderr);
+     			  var box = stdout.split(',');
+     			  if (threshold > box[3] && pompMode == "ON")
+     				exec("sudo python /home/LMS/mortor.py");
+			  }); },interval);
+		}
+	 });
+        });
+
+	socket.on('shutdown',function() {
+	  exec("sudo sh /home/LMS/shutdown.sh",function(){
+          });
+        })
+
 });
