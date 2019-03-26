@@ -54,4 +54,4 @@ source ~/.bashrc
 #install LMS file
 sudo git clone git://github.com/isapanda/LMS.git /home/LMS
 sudo mkdir /home/LMS/pict
-sudo mv mist.png Pour.png setting.png Reload.png temp.png /home/LMS/pict
+sudo mv mist.png Pour.png setting.png Reload.png temp.png home.png submit.png shutdown.png /home/LMS/pict
