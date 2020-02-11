@@ -57,5 +57,8 @@ sudo sed -i '$a export NODE_PATH=/home/pi/.nvm/versions/node/
 v8.11.1/lib/node_modules' ~/.bashrc
 source ~/.bashrc
 
-sudo python WriteRTC.py
-sudo python lms.py
+#install LMS file
+sudo git clone git://github.com/isapanda/LMS.git /home/LMS
+sudo mkdir /home/LMS/pict
+sudo mv mist.png Pour.png setting.png Reload.png temp.png home.png submit.png shutdown.png /home/LMS/pict
+
