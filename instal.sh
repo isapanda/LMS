@@ -6,7 +6,7 @@ sudo apt-get upgrade -y
 sudo apt-get install chkconfig -y
 
 #Activation SSH
-#sudo touch /boot/ssh
+sudo touch /boot/ssh
 
 #Activation IIC
 sudo sed -i -e "6i i2c-bcm2708" /etc/modules
@@ -30,17 +30,17 @@ sudo apt-get install -y npm
 #sudo npm install npm n -g
 #sudo n stable
 
-npm init -y
+sudo npm init -y
 
 #install socket.io
 #cd ./.nvm/versions/node/v8.11.1/lib/node_modules
-sudo npm install -g socket.io@1.7.3
+npm install -g socket.io@1.7.3
 
 #install localtunnel
-sudo npm install -g localtunnel@1.9.1
+npm install -g localtunnel@1.9.1
 
 #install forever & initd-forever
-sudo npm install -g forever initd-forever@0.1.8
+npm install -g forever initd-forever@0.1.8
 #cd /home/LMS
 initd-forever -a /home/LMS/index.js -n nodestart
 chmod +x nodestart
@@ -57,5 +57,5 @@ sudo sed -i '$a export NODE_PATH=/home/pi/.nvm/versions/node/
 v8.11.1/lib/node_modules' ~/.bashrc
 source ~/.bashrc
 
-sudo python WriteRTC.py
-sudo python lms.py
+sudo python /home/LMS/WriteRTC.py
+sudo python /home/LMS/lms.py

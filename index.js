@@ -1,6 +1,6 @@
 //Call modules
 var http = require('http');
-var socketio = require("/home/pi/.nvm/versions/node/v4.2.4/lib/node_modules/socket.io")
+var socketio = require("/home/pi/.nvm/versions/node/v8.11.1/lib/node_modules/socket.io")
 var url = require('url');
 //var socketio = require("socket.io");
 var fs = require('fs');
