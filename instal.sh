@@ -17,7 +17,7 @@ sudo apt-get install i2c-tools
 #install LMS file
 sudo git clone git://github.com/isapanda/LMS.git /home/LMS
 sudo mkdir /home/LMS/pict
-sudo mv /home/LMS/mist.png /home/LMS/Pour.png /home/LMS/setting.png /home/LMS/Reload.png /home/LMS/temp.png /home/LMS/home.png /home/LMS/confirm.png /home/LMS/shutdown.png /home/LMS/pict
+sudo mv /home/LMS/mist.png /home/LMS/Pour.png /home/LMS/setting.png /home/LMS/Reload.png /home/LMS/temp.png /home/LMS/home.png /home/LMS/submit.png /home/LMS/shutdown.png /home/LMS/pict
 
 #Install node 8.11.1
 sudo git clone git://github.com/creationix/nvm.git ~/.nvm
@@ -57,8 +57,5 @@ sudo sed -i '$a export NODE_PATH=/home/pi/.nvm/versions/node/
 v8.11.1/lib/node_modules' ~/.bashrc
 source ~/.bashrc
 
-#install LMS file
-sudo git clone git://github.com/isapanda/LMS.git /home/LMS
-sudo mkdir /home/LMS/pict
-sudo mv mist.png Pour.png setting.png Reload.png temp.png home.png submit.png shutdown.png /home/LMS/pict
-
+sudo python WriteRTC.py
+sudo python lms.py
