@@ -34,13 +34,13 @@ npm init -y
 
 #install socket.io
 #cd ./.nvm/versions/node/v8.11.1/lib/node_modules
-npm install -g socket.io@1.7.3
+sudo npm install -g socket.io@1.7.3
 
 #install localtunnel
-npm install -g localtunnel@1.9.1
+sudo npm install -g localtunnel@1.9.1
 
 #install forever & initd-forever
-npm install -g forever initd-forever@0.1.8
+sudo npm install -g forever initd-forever@0.1.8
 #cd /home/LMS
 initd-forever -a /home/LMS/index.js -n nodestart
 chmod +x nodestart
